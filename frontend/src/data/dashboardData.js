@@ -17,7 +17,7 @@ import {
 
 // Sidebar Items
 export const sidebarItems = [
-  { icon: LayoutDashboard, label: "Dashboard", active: true },
+  { icon: LayoutDashboard, label: "Dashboard" },
   { icon: Users, label: "Teachers" },
   { icon: GraduationCap, label: "Students" },
   { icon: BookOpen, label: "Classes" },
