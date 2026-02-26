@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import { Search, Bell, Menu } from "lucide-react";
 import {
