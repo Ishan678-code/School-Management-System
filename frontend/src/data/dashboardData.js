@@ -12,6 +12,8 @@ import {
   UserPlus,
   CheckCircle2,
   ReceiptText,
+  Building2,
+  ChartBar
 } from "lucide-react";
 
 
@@ -20,10 +22,12 @@ export const sidebarItems = [
   { icon: LayoutDashboard, label: "Dashboard" },
   { icon: Users, label: "Teachers" },
   { icon: GraduationCap, label: "Students" },
-  { icon: BookOpen, label: "Classes" },
+  { icon: Building2, label: "Classes" },
   { icon: ReceiptText, label: "Fees" },
   { icon: ClipboardCheck, label: "Attendance" },
   { icon: Clock, label: "Timetable" },
+  { icon: ChartBar, label: "Results" },
+
   { icon: CalendarDays, label: "Events" },
   { icon: Megaphone, label: "Announcements" },
   { icon: BarChart3, label: "Reports" },
