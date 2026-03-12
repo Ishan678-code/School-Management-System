@@ -23,7 +23,7 @@ import {
   Line,
   PieChart,
   Pie,
-  
+  Cell
 } from "recharts";
 
 const AdminReportData = () => {
