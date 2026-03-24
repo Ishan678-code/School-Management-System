@@ -1,116 +1,93 @@
-// revised
-import { Search, Plus, Download, MoreHorizontal, ChevronDown } from 'lucide-react';
-const studentStats = [
-  { label: 'Total Students', value: '6', color: 'text-slate-800' },
-  { label: 'Active', value: '5', color: 'text-green-600' },
-  { label: 'Avg Attendance', value: '91%', color: 'text-slate-800' },
-  { label: 'Classes', value: '5', color: 'text-slate-800' },
-];
+// AdminStudentData.jsx - Student management page with search, stats cards, DataTable.
+// Uses TextInput for search, StatCard for metrics, StatusBadge for status, DataTable for list, IconButton for actions.
+// Integrates Zustand store via useStudentsStore for real data.
 
-const students = [
-  { id: 'STU001', name: 'Alex Thompson', email: 'alex.thompson@school.edu', class: '10A', guardian: 'John Thompson', attendance: 96, status: 'active', initials: 'AT' },
-  { id: 'STU002', name: 'Emma Watson', email: 'emma.watson@school.edu', class: '10A', guardian: 'Mary Watson', attendance: 94, status: 'active', initials: 'EW' },
-  { id: 'STU003', name: 'James Miller', email: 'james.miller@school.edu', class: '9B', guardian: 'Robert Miller', attendance: 88, status: 'active', initials: 'JM' },
-  { id: 'STU004', name: 'Sophie Brown', email: 'sophie.brown@school.edu', class: '8A', guardian: 'David Brown', attendance: 92, status: 'active', initials: 'SB' },
-];
+import React from 'react';
+import { Search, Plus, Download, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { useStudentsStore } from '@/stores/studentsStore';
+import { TextInput, StatCard, StatusBadge, DataTable, IconButton, Button } from '@/components/ui';
 
 const AdminStudentData = () => {
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+  const { students, loading, fetchStudents } = useStudentsStore();
 
-{/* active bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search students..."
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-100 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-            />
+  React.useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const studentStats = [
+    { label: 'Total Students', value: students.length.toString(), color: 'default' },
+    { label: 'Active', value: students.filter(s => s.status === 'active').length.toString(), color: 'emerald' },
+    { label: 'Avg Attendance', value: '91%', color: 'default' },
+    { label: 'Classes', value: '5', color: 'default' },
+  ];
+
+  const columns = [
+    {
+      header: 'Student',
+      key: 'name',
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100">
+            {/* Generate initials from name */}
+            {row.name.split(' ').map(n => n[0]).join('').toUpperCase()}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-medium text-slate-600 shadow-sm hover:bg-gray-50 transition-all">
+          <div>
+            <p className="text-sm font-bold text-slate-800 leading-none">{row.name}</p>
+            <p className="text-xs text-gray-400 mt-1">{row.email || row.rollNo}</p>
+          </div>
+        </div>
+      ),
+    },
+    { header: 'Roll No.', key: 'rollNo' },
+    { header: 'Class', key: 'class' },
+    { header: 'Guardian', key: 'parent' },
+    { header: 'Attendance', render: (row) => <StatusBadge variant={row.attendance > 90 ? 'success' : 'warning'}>95%</StatusBadge> },
+    { header: 'Status', render: (row) => <StatusBadge variant={row.status}>{row.status}</StatusBadge> },
+    { 
+      header: 'Actions', 
+      render: () => (
+        <div className="flex gap-1">
+          <IconButton variant="ghost" size="sm"><MoreHorizontal className="w-3 h-3" /></IconButton>
+          <Button variant="secondary" size="sm">Edit</Button>
+        </div>
+      ) 
+    },
+  ];
+
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>;
+
+  return (
+    <div className="space-y-6">
+      {/* Header with Search + Filters + Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <TextInput icon={<Search />} placeholder="Search students..." />
+          <Button variant="secondary">
             All Classes <ChevronDown size={16} />
-          </button>
+          </Button>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-medium text-slate-600 shadow-sm hover:bg-gray-50 transition-all">
+          <Button variant="ghost">
             <Download size={16} /> Export
-          </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">
+          </Button>
+          <Button variant="primary">
             <Plus size={18} /> Add Student
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Stat Cards */}
+      {/* Stats Dashboard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {studentStats.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <p className="text-sm font-medium text-gray-400 mb-2">{stat.label}</p>
-            <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-          </div>
+          <StatCard key={i} title={stat.label} value={stat.value} />
         ))}
       </div>
 
-      {/* Students Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50/50 border-b border-gray-100">
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Student</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Roll No.</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Class</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Guardian</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Attendance</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {students.map((student) => (
-              <tr key={student.id} className="hover:bg-gray-50/50 transition-colors group">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100">
-                      {student.initials}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-800 leading-none">{student.name}</p>
-                      <p className="text-xs text-gray-400 mt-1">{student.email}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm font-bold text-slate-600">{student.id}</td>
-                <td className="px-6 py-4">
-                  <span className="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-600">
-                    {student.class}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-slate-500 font-medium">{student.guardian}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                    student.attendance > 90 ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
-                  }`}>
-                    {student.attendance}%
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                    {student.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button className="text-gray-300 hover:text-slate-600 transition-colors">
-                    <MoreHorizontal size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Main Table */}
+      <Card>
+        <DataTable columns={columns} data={students} />
+      </Card>
     </div>
   );
 };

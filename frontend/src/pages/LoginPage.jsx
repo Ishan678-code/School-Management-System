@@ -5,8 +5,10 @@ import { useState, useEffect, useRef } from "react";
 import { Building2 } from "lucide-react";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import { MdMailOutline } from "react-icons/md";
-import { useNavigate } from "react-router";
-import gsap from "gsap";
+        import { useNavigate } from "react-router";
+        import gsap from "gsap";
+        import { Button } from '../components/ui/Button';
+        import { TextInput } from '../components/ui/TextInput';
 
 export default function LoginPage() {
   const [email, setEmail] = useState("admin@school.edu");
@@ -98,19 +100,16 @@ export default function LoginPage() {
             Sign in to access your portal
           </p>
 
-          <div className="flex gap-3 mb-6 flex-wrap justify-center">
+<div className="flex gap-3 mb-6 flex-wrap justify-center">
             {["Admin", "Teacher", "Student", "Parent"].map((role) => (
-              <button
+              <Button
                 key={role}
+                variant={activeRole === role ? 'primary' : 'secondary'}
+                size="sm"
                 onClick={() => setActiveRole(role)}
-                className={`py-2 px-4 rounded-lg border text-sm font-medium transition-all duration-200 ${
-                  activeRole === role
-                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-none shadow-md"
-                    : "bg-slate-100 border-slate-200 hover:bg-slate-200"
-                }`}
               >
                 {role}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -148,16 +147,13 @@ export default function LoginPage() {
             {/* Email */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Email</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@school.edu"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-200 transition"
-                />
-                <MdMailOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
-              </div>
+<TextInput
+                label="Email"
+                icon={<MdMailOutline className="w-4 h-4" />}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@school.edu"
+              />
             </div>
 
             {/* Password */}
@@ -193,12 +189,9 @@ export default function LoginPage() {
             </div>
 
             {/* Button */}
-            <button
-              type="submit"
-              className="mt-3 py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
-            >
+<Button variant="primary" size="lg" className="mt-3 w-full">
               Login
-            </button>
+            </Button>
           </form>
 
           <p className="text-center text-xs text-slate-400 mt-6">

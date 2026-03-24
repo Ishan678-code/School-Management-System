@@ -24,6 +24,8 @@ import {
   Cell
 } from "recharts";
 import AdminStudentReportData from "./AdminStudentReportData";
+import { StatCard } from '../ui/StatCard';
+import { ChartContainer } from '../ui/ChartContainer';
 
 const TIME_OPTIONS = ["This Week", "This Month", "This Quarter", "This Year"];
 const CLASS_OPTIONS = ["Class 10A", "Class 10B", "Class 9A", "Class 9B", "Class 8A", "Class 8B"];
@@ -252,23 +254,8 @@ const AdminReportData = () => {
   );
 };
 
-const StatCard = React.memo(({ label, value, change, icon }) => (
-  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between">
-    <div>
-      <p className="text-slate-500 text-sm">{label}</p>
-      <h3 className="text-2xl font-bold text-slate-800">{value}</h3>
-      {/* TODO: Color should reflect positive vs. negative change. */}
-  <p className="text-emerald-500 text-xs font-bold">{change}</p>
-    </div>
-    <div className="p-3 bg-slate-50 rounded-xl text-slate-400">{icon}</div>
-  </div>
-));
 
-const ChartContainer = React.memo(({ title, children }) => (
-  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-    <h2 className="text-lg font-bold text-slate-800 mb-6">{title}</h2>
-    <div className="h-64 w-full">{children}</div>
-  </div>
-));
+
+
 
 export default AdminReportData;
