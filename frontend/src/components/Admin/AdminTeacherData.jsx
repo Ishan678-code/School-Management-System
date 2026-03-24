@@ -1,3 +1,4 @@
+// TODO: Needs improvement
 import React from 'react';
 import { Search, MoreHorizontal, Plus, Mail, Phone, BookOpen } from 'lucide-react';
 
@@ -79,7 +80,7 @@ const AdminTeacherData = () => {
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-gray-300 italic font-medium">No classes assigned</span>
+                  <span className="text-xs text-gray-500 italic font-medium">No classes assigned</span>
                 )}
               </div>
             </div>
@@ -91,6 +92,4 @@ const AdminTeacherData = () => {
 };
 
 export default AdminTeacherData;
-
-
 

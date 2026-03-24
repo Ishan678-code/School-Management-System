@@ -1,6 +1,5 @@
-import React from 'react';
+// revised
 import { Search, Plus, Download, MoreHorizontal, ChevronDown } from 'lucide-react';
-
 const studentStats = [
   { label: 'Total Students', value: '6', color: 'text-slate-800' },
   { label: 'Active', value: '5', color: 'text-green-600' },
@@ -9,16 +8,17 @@ const studentStats = [
 ];
 
 const students = [
-  { id: 'STU001', name: 'Alex Thompson', email: 'alex.thompson@school.edu', class: '10A', guardian: 'John Thompson', attendance: '96%', status: 'active', initials: 'AT' },
-  { id: 'STU002', name: 'Emma Watson', email: 'emma.watson@school.edu', class: '10A', guardian: 'Mary Watson', attendance: '94%', status: 'active', initials: 'EW' },
-  { id: 'STU003', name: 'James Miller', email: 'james.miller@school.edu', class: '9B', guardian: 'Robert Miller', attendance: '88%', status: 'active', initials: 'JM' },
-  { id: 'STU004', name: 'Sophie Brown', email: 'sophie.brown@school.edu', class: '8A', guardian: 'David Brown', attendance: '92%', status: 'active', initials: 'SB' },
+  { id: 'STU001', name: 'Alex Thompson', email: 'alex.thompson@school.edu', class: '10A', guardian: 'John Thompson', attendance: 96, status: 'active', initials: 'AT' },
+  { id: 'STU002', name: 'Emma Watson', email: 'emma.watson@school.edu', class: '10A', guardian: 'Mary Watson', attendance: 94, status: 'active', initials: 'EW' },
+  { id: 'STU003', name: 'James Miller', email: 'james.miller@school.edu', class: '9B', guardian: 'Robert Miller', attendance: 88, status: 'active', initials: 'JM' },
+  { id: 'STU004', name: 'Sophie Brown', email: 'sophie.brown@school.edu', class: '8A', guardian: 'David Brown', attendance: 92, status: 'active', initials: 'SB' },
 ];
 
 const AdminStudentData = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      {/* 🔹 Action Bar */}
+
+{/* active bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1">
           <div className="relative w-full max-w-sm">
@@ -44,7 +44,7 @@ const AdminStudentData = () => {
         </div>
       </div>
 
-      {/* 🔹 Stat Cards */}
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {studentStats.map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -54,7 +54,7 @@ const AdminStudentData = () => {
         ))}
       </div>
 
-      {/* 🔹 Students Table */}
+      {/* Students Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -91,9 +91,9 @@ const AdminStudentData = () => {
                 <td className="px-6 py-4 text-sm text-slate-500 font-medium">{student.guardian}</td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                    parseInt(student.attendance) > 90 ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
+                    student.attendance > 90 ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'
                   }`}>
-                    {student.attendance}
+                    {student.attendance}%
                   </span>
                 </td>
                 <td className="px-6 py-4">

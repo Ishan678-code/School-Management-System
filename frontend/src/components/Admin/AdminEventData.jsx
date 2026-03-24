@@ -1,8 +1,10 @@
-import React from 'react';
+// AdminEventData.jsx - Admin page for managing school events with search and filter functionality.
+import React, { useMemo, useState } from 'react';
 import { Search, ChevronDown, Plus, Calendar, Clock, MapPin, Users } from 'lucide-react';
 
 const events = [
   {
+    id: "event-sports-day-2025",
     type: "Sports",
     title: "Annual Sports Day",
     description: "Annual sports competition featuring track and field events, team sports, a...",
@@ -14,6 +16,7 @@ const events = [
     badgeClass: "bg-green-50 text-green-600"
   },
   {
+    id: "event-ptm-2026-01-05",
     type: "Meeting",
     title: "Parent-Teacher Meeting",
     description: "Quarterly meeting to discuss student progress and academic performance.",
@@ -25,6 +28,7 @@ const events = [
     badgeClass: "bg-orange-50 text-orange-600"
   },
   {
+    id: "event-science-fair-2026-01-15",
     type: "Academic",
     title: "Science Fair",
     description: "Students showcase their science projects and innovations.",
@@ -36,6 +40,7 @@ const events = [
     badgeClass: "bg-blue-50 text-blue-600"
   },
   {
+    id: "event-cultural-fest-2026-01-20",
     type: "Cultural",
     title: "Cultural Festival",
     description: "Annual cultural celebration with performances, art exhibitions, and foo...",
@@ -47,6 +52,7 @@ const events = [
     badgeClass: "bg-teal-50 text-teal-600"
   },
   {
+    id: "event-republic-day-2026-01-26",
     type: "Holiday",
     title: "Republic Day Celebration",
     description: "National holiday celebration with flag hoisting and cultural programs.",
@@ -58,6 +64,7 @@ const events = [
     badgeClass: "bg-red-50 text-red-600"
   },
   {
+    id: "event-midterm-2026-02-01",
     type: "Academic",
     title: "Mid-Term Examinations",
     description: "Mid-term examination period for all classes.",
@@ -71,29 +78,64 @@ const events = [
 ];
 
 const AdminEventData = () => {
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("All");
+
+  const eventTypes = useMemo(() => {
+    return ["All", ...new Set(events.map((event) => event.type))];
+  }, []);
+
+  const filteredEvents = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return events.filter((event) => {
+      if (typeFilter !== "All" && event.type !== typeFilter) return false;
+      if (!normalizedQuery) return true;
+      return (
+        event.title.toLowerCase().includes(normalizedQuery) ||
+        event.description.toLowerCase().includes(normalizedQuery) ||
+        event.location.toLowerCase().includes(normalizedQuery) ||
+        event.audience.toLowerCase().includes(normalizedQuery) ||
+        event.date.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [query, typeFilter]);
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen font-sans text-slate-800">
       {/* Header / Navigation Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-3 w-full max-w-2xl">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4 flex-1">
           {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               placeholder="Search events..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/10 text-sm"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-100 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
             />
           </div>
 
           {/* Type Dropdown */}
-          <button className="flex items-center justify-between gap-2 min-w-[140px] px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-slate-600 hover:bg-gray-50 transition-colors">
-            All Types <ChevronDown size={16} className="text-gray-400" />
-          </button>
+          <div className="relative min-w-[160px]">
+            <select
+              value={typeFilter}
+              onChange={(event) => setTypeFilter(event.target.value)}
+              className="w-full appearance-none px-4 py-2.5 pr-9 bg-white border border-gray-100 rounded-xl text-sm font-medium text-slate-600 shadow-sm hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            >
+              {eventTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type === "All" ? "All Types" : type}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          </div>
         </div>
 
         {/* Add Event Button */}
-        <button className="bg-[#2540D0] hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-semibold transition-all">
+        <button className="bg-[#2540D0] hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all">
           <Plus size={18} />
           Add Event
         </button>
@@ -101,9 +143,9 @@ const AdminEventData = () => {
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event, idx) => (
+        {filteredEvents.map((event) => (
           <div 
-            key={idx} 
+            key={event.id} 
             className={`bg-white rounded-xl shadow-sm border border-gray-100 border-l-[6px] ${event.colorClass} p-6 flex flex-col gap-3`}
           >
             {/* Category Badge */}
@@ -141,6 +183,12 @@ const AdminEventData = () => {
           </div>
         ))}
       </div>
+
+      {filteredEvents.length === 0 && (
+        <div className="mt-10 text-center text-sm text-slate-500">
+          No events match your search and filter.
+        </div>
+      )}
     </div>
   );
 };

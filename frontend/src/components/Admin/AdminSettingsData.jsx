@@ -1,11 +1,8 @@
-
-
-
-
+// AdminSettingsData.jsx - Admin page for managing school settings with multiple sections and save functionality.
 import React, { useState } from "react";
 import { Save, School, Calendar, ShieldCheck, Bell, Edit2 } from "lucide-react";
 
-const AdminSettingData = () => {
+const AdminSettingsData = () => {
 
   const [activeTab, setActiveTab] = useState("School");
 
@@ -16,6 +13,20 @@ const AdminSettingData = () => {
     events: false,
     system: true
   });
+  const [showSaved, setShowSaved] = useState(false);
+  const [saveTimerId, setSaveTimerId] = useState(null);
+
+  const handleSave = () => {
+    if (saveTimerId) {
+      clearTimeout(saveTimerId);
+    }
+    setShowSaved(true);
+    const timerId = setTimeout(() => {
+      setShowSaved(false);
+      setSaveTimerId(null);
+    }, 2000);
+    setSaveTimerId(timerId);
+  };
 
   const toggleSwitch = (key) => {
     setNotifications((prev) => ({
@@ -31,8 +42,7 @@ const AdminSettingData = () => {
     { id: "Notifications", name: "Notifications", icon: <Bell className="w-4 h-4" />, color: "border-blue-500" },
   ];
 
-  /* ---------------- School Form ---------------- */
-
+// each form is defined as a separate component for better organization and readability. In a real application, these would likely be in separate files and include more complex logic for handling form state and submission.
   const SchoolForm = () => (
     <div className="space-y-6">
 
@@ -100,9 +110,6 @@ const AdminSettingData = () => {
 
     </div>
   );
-
-  /* ---------------- Academic Form ---------------- */
-
   const AcademicForm = () => (
     <div className="space-y-6">
 
@@ -142,9 +149,6 @@ const AdminSettingData = () => {
 
     </div>
   );
-
-  /* ---------------- Roles Form ---------------- */
-
   const roles = [
     { name: "Admin", permissions: ["Full System Access","User Management","Settings","Reports"] },
     { name: "Teacher", permissions: ["Manage Attendance","Enter Marks","View Students"] },
@@ -165,7 +169,7 @@ const AdminSettingData = () => {
               <p className="text-sm text-slate-400">{role.permissions.length} permissions</p>
             </div>
 
-            <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+            <button type="button" className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
               <Edit2 className="w-4 h-4"/>
             </button>
 
@@ -191,8 +195,8 @@ const AdminSettingData = () => {
     </div>
   );
 
-  /* ---------------- Notifications Form ---------------- */
 
+  // mock notifications list - in real app, this would come from API and be dynamic based on user settings.
   const notificationsList = [
     {key:"email",title:"Email Notifications",desc:"Receive notifications via email"},
     {key:"attendance",title:"Attendance Alerts",desc:"Get notified about low attendance"},
@@ -214,6 +218,9 @@ const AdminSettingData = () => {
           </div>
 
           <button
+            type="button"
+            role="switch"
+            aria-checked={notifications[item.key]}
             onClick={()=>toggleSwitch(item.key)}
             className={`relative w-12 h-6 rounded-full transition ${
               notifications[item.key] ? "bg-blue-600" : "bg-slate-300"
@@ -235,8 +242,7 @@ const AdminSettingData = () => {
     </div>
   );
 
-  /* ---------------- Render Tabs ---------------- */
-
+// renders the appropriate form based on the active tab. In a real application, you would likely also include logic to load and save the settings for each section.
   const renderContent = () => {
     switch(activeTab){
       case "School":
@@ -262,6 +268,7 @@ const AdminSettingData = () => {
 
           {navItems.map((item)=>(
             <button
+              type="button"
               key={item.id}
               onClick={()=>setActiveTab(item.id)}
               className={`flex items-center justify-center gap-2 p-3 bg-white rounded-xl border-t-4 shadow-sm transition ${
@@ -292,17 +299,25 @@ const AdminSettingData = () => {
 
       <div className="max-w-4xl mx-auto flex justify-end mt-6">
 
-        <button className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:bg-blue-700 active:scale-95 transition">
+        <button
+          type="button"
+          onClick={handleSave}
+          className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:bg-blue-700 active:scale-95 transition"
+        >
           <Save className="w-4 h-4"/>
           Save Changes
         </button>
 
       </div>
 
+      {showSaved && (
+        <div className="fixed bottom-6 right-6 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+          Saved
+        </div>
+      )}
     </div>
   );
 
 };
 
-export default AdminSettingData;
-
+export default AdminSettingsData;

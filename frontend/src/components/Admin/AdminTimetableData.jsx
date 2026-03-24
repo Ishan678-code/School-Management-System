@@ -1,3 +1,4 @@
+// reviesed 
 import React, { useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 
@@ -6,11 +7,12 @@ const AdminTimetableData = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const classes = ['Class 10A', 'Class 10B', 'Class 9A', 'Class 9B', 'Class 8A'];
+  const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
   const timetable = [
     {
       day: "Monday",
-      isToday: true,
+      isToday: todayName === "Monday",
       sessions: [
         { subject: "English", teacher: "Ms. Emily Davis", time: "8:00 - 8:45", room: "Room 103", color: "border-blue-500" },
         { subject: "Mathematics", teacher: "Dr. Sarah Johnson", time: "8:50 - 9:35", room: "Room 101", color: "border-blue-500" },
@@ -24,6 +26,7 @@ const AdminTimetableData = () => {
     },
     {
       day: "Tuesday",
+      isToday: todayName === "Tuesday",
       sessions: [
         { subject: "English", teacher: "Ms. Emily Davis", time: "8:00 - 8:45", room: "Room 103", color: "border-blue-500" },
         { subject: "Mathematics", teacher: "Dr. Sarah Johnson", time: "8:50 - 9:35", room: "Room 101", color: "border-blue-500" },
@@ -37,6 +40,7 @@ const AdminTimetableData = () => {
     },
     {
       day: "Wednesday",
+      isToday: todayName === "Wednesday",
       sessions: [
         { subject: "Chemistry", teacher: "Mr. Robert Wilson", time: "8:00 - 8:45", room: "Room 102", color: "border-blue-500" },
         { subject: "Mathematics", teacher: "Dr. Sarah Johnson", time: "8:50 - 9:35", room: "Room 101", color: "border-blue-500" },
@@ -57,7 +61,7 @@ const AdminTimetableData = () => {
         <div className="relative">
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center justify-between gap-8 bg-white px-4 py-2 border border-slate-200 rounded-lg min-w-50 text-sm font-medium shadow-sm"
+            className="flex items-center justify-between gap-8 bg-white px-4 py-2 border border-slate-200 rounded-lg min-w-[200px] text-sm font-medium shadow-sm"
           >
             {selectedClass}
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
@@ -111,10 +115,10 @@ const AdminTimetableData = () => {
                       <div className="flex items-center gap-2">
                          
                         <div 
-  className={`absolute left-0 top-0 bottom-0 w-1 border-l-4 ${
-    session.isBreak ? 'border-l-neutral-500' : session.color
-  }`}
-></div>
+                          className={`absolute left-0 top-0 bottom-0 w-1 border-l-4 ${
+                            session.isBreak ? 'border-l-neutral-500' : session.color
+                          } rounded-l-full `}
+                              ></div>
 
                         <h4 className={`font-bold text-sm ${session.isBreak ? 'text-slate-500 uppercase tracking-widest' : 'text-slate-800'}`}>
                           {session.subject}

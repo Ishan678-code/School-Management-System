@@ -1,13 +1,7 @@
-
-
-import {
-  ChevronLeft,
-  ChevronRight,
-  Building2,
-  LogOut,
-  X,
-} from "lucide-react";
-import { useNavigate } from "react-router";
+// AdminSidebar.jsx - Responsive sidebar component for admin dashboard with collapse and mobile support.
+import { memo, useCallback, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Building2, LogOut, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const AdminSidebar = ({
     collapsed,
@@ -18,27 +12,45 @@ const AdminSidebar = ({
     activeItem,
     setActiveItem
 }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const closeMobile = useCallback(() => setMobileOpen(false), [setMobileOpen]);
+  const toggleCollapsed = useCallback(
+    () => setCollapsed((prev) => !prev),
+    [setCollapsed]
+  );
+  const handleLogout = useCallback(() => navigate("/login"), [navigate]);
+  const handleItemClick = useCallback(
+    (label) => {
+      setActiveItem(label);
+      setMobileOpen(false);
+    },
+    [setActiveItem, setMobileOpen]
+  );
+
+  const asideClassName = useMemo(
+    () => `
+        fixed lg:static z-50 top-0 left-0 h-full
+        ${collapsed ? "w-28" : "w-64"}
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0
+        bg-white border-r border-gray-200
+        flex flex-col
+        transition-all duration-300
+      `,
+    [collapsed, mobileOpen]
+  );
   return (
     <>
       {/* Mobile Overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-40 lg:hidden"
-          onClick={() => setMobileOpen(false)}
+          onClick={closeMobile}
         />
       )}
 
       <aside
-        className={`
-        fixed lg:static z-50 top-0 left-0 h-full
-        ${collapsed ? 'w-30 ': "w-64"}
-        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0
-        bg-white border-r border-gray-200
-        flex flex-col
-        transition-all duration-300
-      `}
+        className={asideClassName}
       >
         {/* Logo Section */}
         <div className="flex items-center gap-3 p-5 border-b border-gray-200">
@@ -55,7 +67,7 @@ const AdminSidebar = ({
 
           {/* Desktop Collapse */}
           <button
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={toggleCollapsed}
             className="ml-auto text-gray-500 hover:text-gray-800 hidden lg:block"
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
@@ -63,7 +75,7 @@ const AdminSidebar = ({
 
           {/* Mobile Close */}
           <button
-            onClick={() => setMobileOpen(false)}
+            onClick={closeMobile}
             className="ml-auto text-gray-500 hover:text-gray-800 lg:hidden"
           >
             <X size={20} />
@@ -74,27 +86,23 @@ const AdminSidebar = ({
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           
           {sidebarItems.map((item) => {
-  const isActive = activeItem === item.label;
+            const isActive = activeItem === item.label;
 
-  return (
-    <button
-      key={item.label}
-      onClick={() => {
-        setActiveItem(item.label);
-        setMobileOpen(false);
-        
-      }}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-        isActive
-          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
-          : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-      }`}
-    >
-      <item.icon className="w-5 h-5" />
-      {!collapsed && <span>{item.label}</span>}
-    </button>
-  );
-})}
+            return (
+              <button
+                key={item.label}
+                onClick={() => handleItemClick(item.label)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                    : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                {!collapsed && <span>{item.label}</span>}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Profile */}
@@ -114,7 +122,10 @@ const AdminSidebar = ({
             )}
           </div>
 
-          <button onClick={()=>navigate('/login')} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mt-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mt-4"
+          >
             <LogOut size={16} />
             {!collapsed && <span>Log out</span>}
           </button>
@@ -124,4 +135,4 @@ const AdminSidebar = ({
   );
 };
 
-export default AdminSidebar;
+export default memo(AdminSidebar);

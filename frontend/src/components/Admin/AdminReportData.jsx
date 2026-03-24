@@ -1,6 +1,4 @@
-
-
-
+// cleanup and refactor of AdminReportData.jsx - added comments, memoization, and improved readability.
 import {
   ChevronDown,
   Download,
@@ -25,6 +23,43 @@ import {
   Pie,
   Cell
 } from "recharts";
+import AdminStudentReportData from "./AdminStudentReportData";
+
+const TIME_OPTIONS = ["This Week", "This Month", "This Quarter", "This Year"];
+const CLASS_OPTIONS = ["Class 10A", "Class 10B", "Class 9A", "Class 9B", "Class 8A", "Class 8B"];
+
+const SUBJECT_DATA = [
+  { name: "Math", score: 78, full: 100 },
+  { name: "Physics", score: 85, full: 100 },
+  { name: "Chemistry", score: 75, full: 100 },
+  { name: "English", score: 82, full: 100 },
+  { name: "Biology", score: 79, full: 100 },
+];
+
+const GRADE_DATA = [
+  { name: "A+", value: 15, color: "#166534" },
+  { name: "A", value: 25, color: "#14b8a6" },
+  { name: "B", value: 30, color: "#1e40af" },
+  { name: "C", value: 20, color: "#ca8a04" },
+  { name: "D", value: 10, color: "#b91c1c" },
+];
+
+const ATTENDANCE_DATA = [
+  { name: "A", value: 92 },
+  { name: "B", value: 88 },
+  { name: "C", value: 95 },
+  { name: "D", value: 82 },
+  { name: "E", value: 90 },
+  { name: "F", value: 93 },
+];
+
+const MONTHLY_DATA = [
+  { month: "Jan", value: 92 },
+  { month: "Feb", value: 94 },
+  { month: "Mar", value: 91 },
+  { month: "Apr", value: 93 },
+  { month: "May", value: 95 },
+];
 
 const AdminReportData = () => {
 
@@ -34,41 +69,25 @@ const AdminReportData = () => {
   const [isClassDropdownOpen, setIsClassDropdownOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState("All Classes");
 
-  const timeOptions = ["This Week", "This Month", "This Quarter", "This Year"];
-  const classOptions = ["Class10A", "Class 10B", "Class 9A", "Class 9B","Class 8A","Class 8B"];
+  const toggleClassDropdown = React.useCallback(() => {
+    setIsClassDropdownOpen((prev) => !prev);
+    setIsTimeDropdownOpen(false);
+  }, []);
 
-  const subjectData = [
-    { name: "Math", score: 78, full: 100 },
-    { name: "Physics", score: 85, full: 100 },
-    { name: "Chemistry", score: 75, full: 100 },
-    { name: "English", score: 82, full: 100 },
-    { name: "Biology", score: 79, full: 100 },
-  ];
+  const toggleTimeDropdown = React.useCallback(() => {
+    setIsTimeDropdownOpen((prev) => !prev);
+    setIsClassDropdownOpen(false);
+  }, []);
 
-  const gradeData = [
-    { name: "A+", value: 15, color: "#166534" },
-    { name: "A", value: 25, color: "#14b8a6" },
-    { name: "B", value: 30, color: "#1e40af" },
-    { name: "C", value: 20, color: "#ca8a04" },
-    { name: "D", value: 10, color: "#b91c1c" },
-  ];
+  const selectClass = React.useCallback((option) => {
+    setSelectedClass(option);
+    setIsClassDropdownOpen(false);
+  }, []);
 
-  const attendanceData = [
-    { name: "A", value: 92 },
-    { name: "B", value: 88 },
-    { name: "C", value: 95 },
-    { name: "D", value: 82 },
-    { name: "E", value: 90 },
-    { name: "F", value: 93 },
-  ];
-
-  const monthlyData = [
-    { month: "Jan", value: 92 },
-    { month: "Feb", value: 94 },
-    { month: "Mar", value: 91 },
-    { month: "Apr", value: 93 },
-    { month: "May", value: 95 },
-  ];
+  const selectTime = React.useCallback((option) => {
+    setSelectedTime(option);
+    setIsTimeDropdownOpen(false);
+  }, []);
 
   return (
     <div className="p-8 bg-[#f8fafc] min-h-screen font-sans">
@@ -81,10 +100,7 @@ const AdminReportData = () => {
           {/* CLASS DROPDOWN */}
           <div className="relative">
             <button
-              onClick={() => {
-                setIsClassDropdownOpen(!isClassDropdownOpen);
-                setIsTimeDropdownOpen(false);
-              }}
+              onClick={toggleClassDropdown}
               className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-medium text-slate-600 shadow-sm hover:bg-gray-50"
             >
               {selectedClass}
@@ -93,13 +109,10 @@ const AdminReportData = () => {
 
             {isClassDropdownOpen && (
               <div className="absolute top-12 left-0 w-48 bg-white border-gray-100 rounded-xl shadow-lg p-1 z-20">
-                {classOptions.map((option) => (
+                {CLASS_OPTIONS.map((option) => (
                   <button
                     key={option}
-                    onClick={() => {
-                      setSelectedClass(option);
-                      setIsClassDropdownOpen(false);
-                    }}
+                    onClick={() => selectClass(option)}
                     className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg ${
                       option === selectedClass
                         ? "bg-[#2da594] text-white"
@@ -117,10 +130,7 @@ const AdminReportData = () => {
           {/* TIME DROPDOWN */}
           <div className="relative">
             <button
-              onClick={() => {
-                setIsTimeDropdownOpen(!isTimeDropdownOpen);
-                setIsClassDropdownOpen(false);
-              }}
+              onClick={toggleTimeDropdown}
               className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-100 rounded-xl text-sm font-medium text-slate-600 shadow-sm hover:bg-gray-50"
             >
               {selectedTime}
@@ -129,13 +139,10 @@ const AdminReportData = () => {
 
             {isTimeDropdownOpen && (
               <div className="absolute top-12 left-0 w-48 bg-white border-gray-100 rounded-xl shadow-lg p-1 z-20">
-                {timeOptions.map((option) => (
+                {TIME_OPTIONS.map((option) => (
                   <button
                     key={option}
-                    onClick={() => {
-                      setSelectedTime(option);
-                      setIsTimeDropdownOpen(false);
-                    }}
+                    onClick={() => selectTime(option)}
                     className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg ${
                       option === selectedTime
                         ? "bg-[#2da594] text-white"
@@ -170,7 +177,7 @@ const AdminReportData = () => {
 
         <ChartContainer title="Attendance by Class">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={attendanceData}>
+            <BarChart data={ATTENDANCE_DATA}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} />
@@ -182,7 +189,7 @@ const AdminReportData = () => {
 
         <ChartContainer title="Monthly Attendance Trend">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={monthlyData}>
+            <LineChart data={MONTHLY_DATA}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
               <XAxis dataKey="month" axisLine={false} tickLine={false}/>
               <YAxis domain={[85,100]} axisLine={false} tickLine={false}/>
@@ -195,11 +202,11 @@ const AdminReportData = () => {
       </div>
 
       {/* PERFORMANCE CHARTS (BOTTOM) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
         <ChartContainer title="Subject-wise Performance">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart layout="vertical" data={subjectData} margin={{left:20}}>
+            <BarChart layout="vertical" data={SUBJECT_DATA} margin={{left:20}}>
               <CartesianGrid strokeDasharray="3 3" horizontal vertical={false} stroke="#f1f5f9"/>
               <XAxis type="number" domain={[0,100]} hide/>
               <YAxis dataKey="name" type="category" axisLine={false} tickLine={false}/>
@@ -215,8 +222,8 @@ const AdminReportData = () => {
 
             <ResponsiveContainer width="100%" height="80%">
               <PieChart>
-                <Pie data={gradeData} innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
-                  {gradeData.map((entry,index)=>(
+                <Pie data={GRADE_DATA} innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
+                  {GRADE_DATA.map((entry,index)=>(
                     <Cell key={index} fill={entry.color}/>
                   ))}
                 </Pie>
@@ -225,7 +232,7 @@ const AdminReportData = () => {
             </ResponsiveContainer>
 
             <div className="flex flex-wrap justify-center gap-4 mt-2">
-              {gradeData.map((item)=>(
+              {GRADE_DATA.map((item)=>(
                 <div key={item.name} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{backgroundColor:item.color}}/>
                   <span className="text-xs text-slate-600">{item.name}: {item.value}%</span>
@@ -238,26 +245,30 @@ const AdminReportData = () => {
 
       </div>
 
+      {/* STUDENT REPORTS */}
+      <AdminStudentReportData />
+
     </div>
   );
 };
 
-const StatCard = ({ label, value, change, icon }) => (
+const StatCard = React.memo(({ label, value, change, icon }) => (
   <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between">
     <div>
       <p className="text-slate-500 text-sm">{label}</p>
       <h3 className="text-2xl font-bold text-slate-800">{value}</h3>
-      <p className="text-emerald-500 text-xs font-bold">{change}</p>
+      {/* TODO: Color should reflect positive vs. negative change. */}
+  <p className="text-emerald-500 text-xs font-bold">{change}</p>
     </div>
     <div className="p-3 bg-slate-50 rounded-xl text-slate-400">{icon}</div>
   </div>
-);
+));
 
-const ChartContainer = ({ title, children }) => (
+const ChartContainer = React.memo(({ title, children }) => (
   <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
     <h2 className="text-lg font-bold text-slate-800 mb-6">{title}</h2>
     <div className="h-64 w-full">{children}</div>
   </div>
-);
+));
 
 export default AdminReportData;

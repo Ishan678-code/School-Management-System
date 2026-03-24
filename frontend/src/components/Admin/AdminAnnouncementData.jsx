@@ -1,39 +1,75 @@
-import React from 'react';
+// Pinned and search functionality added to announcements page. --- revised
+import { useMemo, useState } from 'react';
 import { Search, Plus, Pin, Calendar, User } from 'lucide-react';
 
+const pinnedAnnouncements = [
+  {
+    id: 1,
+    priority: 'High Priority',
+    audience: 'Everyone',
+    title: 'Annual Sports Day 2026',
+    author: 'Dr. Sarah Johnson',
+    content: 'The annual sports meet is scheduled for next month. Please ensure all student registrations are completed.',
+    date: 'Oct 24, 2026',
+  },
+  {
+    id: 2,
+    priority: 'High Priority',
+    audience: 'Students',
+    title: 'Mid-Term Examination Schedule',
+    author: 'Academic Office',
+    content: 'The detailed schedule for the upcoming mid-term examinations has been uploaded.',
+    date: 'Oct 22, 2026',
+  }
+];
+
+const recentAnnouncements = [
+  { id: 3, title: 'Library New Arrivals', date: 'Oct 20, 2026', author: 'Librarian' },
+  { id: 4, title: 'Canteen Menu Update', date: 'Oct 19, 2026', author: 'Admin Staff' },
+  { id: 5, title: 'Tech Club Meeting', date: 'Oct 18, 2026', author: 'John Doe' },
+];
+
+const searchFields = (announcement) => {
+  const parts = [
+    announcement.title,
+    announcement.content,
+    announcement.author,
+    announcement.audience,
+    announcement.priority,
+  ];
+  return parts.filter(Boolean).join(' ').toLowerCase();
+};
+
+const getInitials = (name) => {
+  if (!name) return 'NA';
+  return name
+    .trim()
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 3);
+};
+
 const AdminAnnouncementData = () => {
-  // Sample Data for Pinned
-  const pinnedAnnouncements = [
-    {
-      id: 1,
-      priority: 'High Priority',
-      audience: 'Everyone',
-      title: 'Annual Sports Day 2026',
-      author: 'Dr. Sarah Johnson',
-      content: 'The annual sports meet is scheduled for next month. Please ensure all student registrations are completed.',
-      date: 'Oct 24, 2026',
-    },
-    {
-      id: 2,
-      priority: 'High Priority',
-      audience: 'Students',
-      title: 'Mid-Term Examination Schedule',
-      author: 'Academic Office',
-      content: 'The detailed schedule for the upcoming mid-term examinations has been uploaded.',
-      date: 'Oct 22, 2026',
-    }
-  ];
+  const [query, setQuery] = useState('');
 
-  // Sample Data for Recent
-  const recentAnnouncements = [
-    { id: 3, title: 'Library New Arrivals', date: 'Oct 20, 2026', author: 'Librarian' },
-    { id: 4, title: 'Canteen Menu Update', date: 'Oct 19, 2026', author: 'Admin Staff' },
-    { id: 5, title: 'Tech Club Meeting', date: 'Oct 18, 2026', author: 'John Doe' },
-  ];
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredPinned = useMemo(() => {
+    if (!normalizedQuery) return pinnedAnnouncements;
+    return pinnedAnnouncements.filter((announcement) =>
+      searchFields(announcement).includes(normalizedQuery)
+    );
+  }, [normalizedQuery]);
 
-  const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 3);
-  };
+  const filteredRecent = useMemo(() => {
+    if (!normalizedQuery) return recentAnnouncements;
+    return recentAnnouncements.filter((announcement) =>
+      searchFields(announcement).includes(normalizedQuery)
+    );
+  }, [normalizedQuery]);
+
+  const hasResults = filteredPinned.length + filteredRecent.length > 0;
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen font-sans text-slate-900">
@@ -41,7 +77,13 @@ const AdminAnnouncementData = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Search announcement..." className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+          <input
+            type="text"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search announcement..."
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+          />
         </div>
         <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-semibold shadow-md hover:bg-blue-700 transition-all active:scale-95">
           <Plus className="w-4 h-4" /> New Announcement
@@ -55,7 +97,7 @@ const AdminAnnouncementData = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        {pinnedAnnouncements.map((item) => (
+        {filteredPinned.map((item) => (
           <div key={item.id} className="bg-gray-100 border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <Pin className="w-4 h-4 text-blue-600 fill-blue-600" />
@@ -79,6 +121,11 @@ const AdminAnnouncementData = () => {
             </div>
           </div>
         ))}
+        {!filteredPinned.length && (
+          <div className="col-span-full rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-sm text-slate-500">
+            No pinned announcements match your search.
+          </div>
+        )}
       </div>
 
       {/* --- RECENT ANNOUNCEMENTS SECTION --- */}
@@ -88,7 +135,7 @@ const AdminAnnouncementData = () => {
 
       {/* Flex container for 3 cards */}
       <div className="flex flex-col lg:flex-row gap-6">
-        {recentAnnouncements.map((item) => (
+        {filteredRecent.map((item) => (
           <div key={item.id} className="flex-1 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-blue-200 transition-colors">
             
             {/* Badges Flex */}
@@ -125,7 +172,18 @@ const AdminAnnouncementData = () => {
 
           </div>
         ))}
+        {!filteredRecent.length && (
+          <div className="flex-1 rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-sm text-slate-500">
+            No recent announcements match your search.
+          </div>
+        )}
       </div>
+
+      {!hasResults && (
+        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+          Try clearing your search to see all announcements.
+        </div>
+      )}
     </div>
   );
 };
