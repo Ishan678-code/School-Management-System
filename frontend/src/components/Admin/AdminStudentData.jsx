@@ -1,95 +1,143 @@
-// AdminStudentData.jsx - Student management page with search, stats cards, DataTable.
-// Uses TextInput for search, StatCard for metrics, StatusBadge for status, DataTable for list, IconButton for actions.
-// Integrates Zustand store via useStudentsStore for real data.
+// AdminSidebar.jsx - Refactored to use unified UI tokens and components
+import { memo, useCallback, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Building2, LogOut, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Avatar, IconButton } from '../ui'; 
 
-import React from 'react';
-import { Search, Plus, Download, MoreHorizontal, ChevronDown } from 'lucide-react';
-import { useStudentsStore } from '@/stores/studentsStore';
-import { TextInput, StatCard, StatusBadge, DataTable, IconButton, Button } from '@/components/ui';
+const AdminSidebar = ({
+    collapsed,
+    setCollapsed,
+    sidebarItems,
+    mobileOpen,
+    setMobileOpen,
+    activeItem,
+    setActiveItem
+}) => {
+  const navigate = useNavigate();
+  
+  const closeMobile = useCallback(() => setMobileOpen(false), [setMobileOpen]);
+  
+  const toggleCollapsed = useCallback(
+    () => setCollapsed((prev) => !prev),
+    [setCollapsed]
+  );
 
-const AdminStudentData = () => {
-  const { students, loading, fetchStudents } = useStudentsStore();
+  const handleLogout = useCallback(() => navigate("/login"), [navigate]);
 
-  React.useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const studentStats = [
-    { label: 'Total Students', value: students.length.toString(), color: 'default' },
-    { label: 'Active', value: students.filter(s => s.status === 'active').length.toString(), color: 'emerald' },
-    { label: 'Avg Attendance', value: '91%', color: 'default' },
-    { label: 'Classes', value: '5', color: 'default' },
-  ];
-
-  const columns = [
-    {
-      header: 'Student',
-      key: 'name',
-      render: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs border border-blue-100">
-            {/* Generate initials from name */}
-            {row.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-          </div>
-          <div>
-            <p className="text-sm font-bold text-slate-800 leading-none">{row.name}</p>
-            <p className="text-xs text-gray-400 mt-1">{row.email || row.rollNo}</p>
-          </div>
-        </div>
-      ),
+  const handleItemClick = useCallback(
+    (label) => {
+      setActiveItem(label);
+      setMobileOpen(false);
     },
-    { header: 'Roll No.', key: 'rollNo' },
-    { header: 'Class', key: 'class' },
-    { header: 'Guardian', key: 'parent' },
-    { header: 'Attendance', render: (row) => <StatusBadge variant={row.attendance > 90 ? 'success' : 'warning'}>95%</StatusBadge> },
-    { header: 'Status', render: (row) => <StatusBadge variant={row.status}>{row.status}</StatusBadge> },
-    { 
-      header: 'Actions', 
-      render: () => (
-        <div className="flex gap-1">
-          <IconButton variant="ghost" size="sm"><MoreHorizontal className="w-3 h-3" /></IconButton>
-          <Button variant="secondary" size="sm">Edit</Button>
-        </div>
-      ) 
-    },
-  ];
+    [setActiveItem, setMobileOpen]
+  );
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>;
+  // Dynamic Class logic for the sidebar container
+  const asideClassName = useMemo(
+    () => `
+        fixed lg:static z-50 top-0 left-0 h-full
+        ${collapsed ? "w-24" : "w-64"}
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0
+        bg-white border-r border-slate-100
+        flex flex-col
+        transition-all duration-300 ease-in-out
+      `,
+    [collapsed, mobileOpen]
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Header with Search + Filters + Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <TextInput icon={<Search />} placeholder="Search students..." />
-          <Button variant="secondary">
-            All Classes <ChevronDown size={16} />
-          </Button>
+    <>
+      {/* Mobile Overlay - Consistent with Settings/Reports modals */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300"
+          onClick={closeMobile}
+        />
+      )}
+
+      <aside className={asideClassName}>
+        {/* Logo Section */}
+        <div className="flex items-center gap-3 p-6 border-b border-slate-50">
+          <div className="min-w-[40px] h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100">
+            <Building2 className="w-5 h-5 text-white" />
+          </div>
+
+          {!collapsed && (
+            <div className="animate-in fade-in slide-in-from-left-2 duration-300">
+              <h2 className="font-bold text-slate-800 text-sm tracking-tight">EduManage</h2>
+              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Admin</p>
+            </div>
+          )}
+
+          {/* Desktop Collapse Toggle */}
+          <button
+            onClick={toggleCollapsed}
+            className="ml-auto text-slate-400 hover:text-blue-600 transition-colors hidden lg:block"
+          >
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
+
+          {/* Mobile Close Button */}
+          <button onClick={closeMobile} className="ml-auto text-slate-400 lg:hidden">
+            <X size={20} />
+          </button>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button variant="ghost">
-            <Download size={16} /> Export
-          </Button>
-          <Button variant="primary">
-            <Plus size={18} /> Add Student
-          </Button>
+        {/* Navigation - Standardized with Card-style hover states */}
+        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+          {sidebarItems.map((item) => {
+            const isActive = activeItem === item.label;
+
+            return (
+              <button
+                key={item.label}
+                onClick={() => handleItemClick(item.label)}
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold transition-all group ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-100"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <item.icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"}`} />
+                {!collapsed && (
+                  <span className="animate-in fade-in duration-300">{item.label}</span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Profile Section - Integrated with Shared Avatar Logic */}
+        <div className="p-4 border-t border-slate-50 bg-slate-50/30">
+          <div className="flex items-center gap-3 px-2">
+            <Avatar 
+                initials="DSJ" 
+                variant="blue" 
+                className="w-9 h-9 border-2 border-white shadow-sm"
+            />
+
+            {!collapsed && (
+              <div className="animate-in fade-in duration-300">
+                <p className="text-sm font-bold text-slate-800 leading-tight">
+                  Dr. Sarah Johnson
+                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">School Principal</p>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-50 transition-all mt-4"
+          >
+            <LogOut size={16} />
+            {!collapsed && <span>Sign Out</span>}
+          </button>
         </div>
-      </div>
-
-      {/* Stats Dashboard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {studentStats.map((stat, i) => (
-          <StatCard key={i} title={stat.label} value={stat.value} />
-        ))}
-      </div>
-
-      {/* Main Table */}
-      <Card>
-        <DataTable columns={columns} data={students} />
-      </Card>
-    </div>
+      </aside>
+    </>
   );
 };
 
-export default AdminStudentData;
+export default memo(AdminSidebar);

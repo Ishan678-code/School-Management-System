@@ -1,40 +1,31 @@
-/**
- * DataTable.jsx - Responsive table with hover rows, sticky header bg, column rendering.
- * Props: columns[] (header, key/render fn), data[], className.
- * Usage: <DataTable columns={[{header: 'Name', key: 'name'}]} data={students} />
- * Note: Ready for TanStack React Table upgrade.
- */
-
-import React from 'react';
-import { cn } from '../../lib/utils';
-
-const DataTable = ({ columns, data, className }) => {
-  return (
-    <div className={cn('w-full overflow-x-auto', className)}>
-      <table className="w-full text-left border-collapse">
-        <thead>
-          {Array.isArray(columns) && columns.map((column, idx) => (
-            <tr key={idx} className="bg-slate-50/50">
-              <th className={cn('px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider', column.className || '')}>
-                {column.header}
-              </th>
-            </tr>
+// src/components/ui/DataTable.jsx
+export const DataTable = ({ columns, data, emptyMessage = "No results found" }) => (
+  <div className="overflow-x-auto">
+    <table className="w-full text-left border-collapse">
+      <thead>
+        <tr className="border-b border-slate-100">
+          {columns.map((col, i) => (
+            <th key={i} className="py-4 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+              {col.header}
+            </th>
           ))}
-        </thead>
-        <tbody className="divide-y divide-slate-50">
-          {Array.isArray(data) && data.map((row, rowIdx) => (
-            <tr key={rowIdx} className="hover:bg-slate-50/50 transition-colors group">
-              {columns.map((column, colIdx) => (
-                <td key={colIdx} className={cn('px-6 py-4', column.className || '')}>
-                  {column.render ? column.render(row) : row[column.key]}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export { DataTable };
+        </tr>
+      </thead>
+      <tbody>
+        {data.length > 0 ? data.map((row, rowIndex) => (
+          <tr key={rowIndex} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+            {columns.map((col, colIndex) => (
+              <td key={colIndex} className="py-4 px-4 text-sm text-slate-600 font-medium">
+                {col.render ? col.render(row, rowIndex) : row[col.accessor]}
+              </td>
+            ))}
+          </tr>
+        )) : (
+          <tr>
+            <td colSpan={columns.length} className="py-20 text-center text-slate-400">{emptyMessage}</td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+);

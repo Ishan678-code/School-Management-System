@@ -1,247 +1,222 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { ChevronDown, Check, Plus, Trash2, X, Printer, Calendar } from 'lucide-react';
-import { Button, Select, TextInput, IconButton } from '../ui'; 
+import React, { useState } from 'react';
+import { 
+  ChevronDown, Check, Plus, Trash2, Printer, 
+  Calendar, Clock, Coffee, MapPin, Edit3, Save, X 
+} from 'lucide-react';
+import { Button, Select, TextInput, Card, IconButton, Avatar } from '../ui'; 
 
 const AdminTimetableData = () => {
+  console.log("TIMETABLE COMPONENT IS RENDERING!");
   const [selectedClass, setSelectedClass] = useState('Class 10A');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [showEditor, setShowEditor] = useState(false);
-  const idRef = useRef(1000);
-
+  const [editingDay, setEditingDay] = useState(null); // Tracks which day is being edited
+  
   const classes = ['Class 10A', 'Class 10B', 'Class 9A', 'Class 9B', 'Class 8A'];
   const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
+  // Initial State: Includes all work days
   const [timetable, setTimetable] = useState([
-    { day: "Monday", isToday: todayName === "Monday", sessions: [
-      { id: 1, subject: "English", teacher: "Ms. Emily Davis", time: "8:00 - 8:45", room: "Room 103", color: "border-blue-500", isBreak: false }
+    { day: "Monday", sessions: [
+      { id: 1, subject: "English", teacher: "Ms. Emily Davis", time: "08:00 - 08:45", room: "103", isBreak: false },
     ]},
-    { day: "Tuesday", isToday: todayName === "Tuesday", sessions: [] },
-    { day: "Wednesday", isToday: todayName === "Wednesday", sessions: [] },
-    { day: "Thursday", isToday: todayName === "Thursday", sessions: [] },
-    { day: "Friday", isToday: todayName === "Friday", sessions: [] },
+    { day: "Tuesday", sessions: [] },
+    { day: "Wednesday", sessions: [] },
+    { day: "Thursday", sessions: [] },
+    { day: "Friday", sessions: [] },
   ]);
 
-  const [form, setForm] = useState({
-    day: "Monday",
-    subject: "",
-    teacher: "",
-    time: "",
-    room: "",
-    isBreak: false,
-  });
+  // --- Handlers ---
 
-  const dayOptions = useMemo(() => timetable.map((d) => d.day), [timetable]);
-
-  const handleAddSession = (e) => {
-    e.preventDefault();
-    if (!form.subject.trim() || !form.time.trim()) return;
-
+  const handleAddRow = (dayName) => {
     const newSession = {
-      id: idRef.current++,
-      subject: form.subject.trim(),
-      teacher: form.isBreak ? "N/A" : form.teacher.trim(),
-      time: form.time.trim(),
-      room: form.isBreak ? "Cafeteria" : form.room.trim(),
-      isBreak: form.isBreak,
-      color: form.isBreak ? "border-slate-400" : "border-blue-500",
-      bgColor: form.isBreak ? "bg-slate-50" : "bg-white",
+      id: Date.now(),
+      subject: "",
+      teacher: "",
+      time: "00:00 - 00:00",
+      room: "",
+      isBreak: false
     };
-
-    setTimetable(prev => prev.map(day => 
-      day.day === form.day ? { ...day, sessions: [...day.sessions, newSession].sort((a, b) => a.time.localeCompare(b.time)) } : day
+    
+    setTimetable(prev => prev.map(d => 
+      d.day === dayName ? { ...d, sessions: [...d.sessions, newSession] } : d
     ));
-
-    setShowEditor(false);
-    setForm({ day: "Monday", subject: "", teacher: "", time: "", room: "", isBreak: false });
   };
 
-  const handleDeleteSession = (dayName, sessionId) => {
-    setTimetable(prev => prev.map(day => 
-      day.day === dayName ? { ...day, sessions: day.sessions.filter(s => s.id !== sessionId) } : day
+  const updateSession = (dayName, sessionId, field, value) => {
+    setTimetable(prev => prev.map(d => {
+      if (d.day === dayName) {
+        return {
+          ...d,
+          sessions: d.sessions.map(s => s.id === sessionId ? { ...s, [field]: value } : s)
+        };
+      }
+      return d;
+    }));
+  };
+
+  const deleteSession = (dayName, sessionId) => {
+    setTimetable(prev => prev.map(d => 
+      d.day === dayName ? { ...d, sessions: d.sessions.filter(s => s.id !== sessionId) } : d
     ));
+  };
+
+  const clearDay = (dayName) => {
+    if(window.confirm(`Clear all sessions for ${dayName}?`)) {
+        setTimetable(prev => prev.map(d => d.day === dayName ? { ...d, sessions: [] } : d));
+    }
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-50/50 p-6 relative">
-      {/* Header Section */}
-      <div className="flex items-center justify-between mb-8">
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <Button variant="secondary" onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="min-w-[140px] justify-between">
-              {selectedClass}
-              <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+              className="min-w-[180px] justify-between"
+            >
+              <span className="font-bold text-slate-700">{selectedClass}</span>
+              <ChevronDown size={16} />
             </Button>
-
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-xl z-[60] overflow-hidden">
-                {classes.map((cls) => (
+              <Card className="absolute top-full left-0 mt-2 w-full z-[100] p-1 shadow-xl">
+                {classes.map(cls => (
                   <button 
                     key={cls} 
                     onClick={() => { setSelectedClass(cls); setIsDropdownOpen(false); }}
-                    className="w-full flex items-center px-4 py-2 text-sm hover:bg-slate-50 text-slate-700 transition-colors"
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 rounded-lg"
                   >
                     {cls}
-                    {cls === selectedClass && <Check className="w-3.5 h-3.5 ml-auto text-blue-600" />}
                   </button>
                 ))}
-              </div>
+              </Card>
             )}
           </div>
-          <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-            Active Schedule
-          </span>
+          <StatusBadge variant="success">Academic Year 2026</StatusBadge>
         </div>
         
-        <Button variant="secondary" size="sm" onClick={() => window.print()}>
-          <Printer className="w-4 h-4 mr-2" />
-          Print PDF
+        <Button variant="outline" onClick={() => window.print()}>
+          <Printer size={16} className="mr-2" /> Export PDF
         </Button>
       </div>
 
-      {/* Sticky Action Bar */}
-     <div className="sticky top-0 z-[50] bg-white border-b border-slate-200 shadow-sm py-4 mb-6">
-  <div className="max-w-4xl mx-auto px-6 flex gap-3">
-    <Button 
-      variant="primary" 
-      size="xl" 
-      className="flex-1 font-bold shadow-lg shadow-blue-500/20" 
-      onClick={() => setShowEditor(true)}
-    >
-      <Plus className="w-6 h-6 mr-2" />
-      <span className="text-lg">Edit Timeline</span>
-    </Button>
-    <Button 
-      variant="secondary" 
-      onClick={() => window.print()}
-      className="flex items-center"
-    >
-      <Printer className="w-5 h-5 mr-2" />
-      Print
-    </Button>
-  </div>
-</div>
-
       {/* Timetable Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        {timetable.map((column) => (
-          <div key={column.day} className={`bg-white rounded-2xl border ${column.isToday ? 'border-blue-200 ring-2 ring-blue-500/10' : 'border-slate-200'} shadow-sm overflow-hidden flex flex-col`}>
-            <div className={`p-4 border-b flex justify-between items-center ${column.isToday ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-800'}`}>
-              <h3 className="font-bold">{column.day}</h3>
-              {column.isToday && <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-tighter">Current</span>}
-            </div>
-            
-            <div className="p-3 space-y-3 flex-1">
-              {column.sessions.length === 0 ? (
-                <div className="py-12 flex flex-col items-center justify-center opacity-40">
-                  <Calendar className="w-8 h-8 mb-2" />
-                  <p className="text-xs font-medium">No Sessions</p>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {timetable.map((col) => {
+          const isToday = col.day === todayName;
+          const isEditing = editingDay === col.day;
+
+          return (
+            <div key={col.day} className="flex flex-col gap-4">
+              {/* Day Header Card */}
+              <div className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${
+                isToday ? 'bg-blue-600 border-blue-600 shadow-lg' : 'bg-white border-slate-100 shadow-sm'
+              }`}>
+                <div>
+                  <h3 className={`font-bold text-sm uppercase tracking-widest ${isToday ? 'text-white' : 'text-slate-500'}`}>
+                    {col.day}
+                  </h3>
                 </div>
-              ) : (
-                column.sessions.map((session) => (
-                  <div key={session.id} className={`p-3 rounded-xl border-l-4 border transition-all ${session.color} ${session.bgColor} group relative`}>
-                    <div className="flex justify-between items-start">
-                      <div className="overflow-hidden">
-                        <h4 className="font-bold text-slate-800 text-sm truncate">{session.subject}</h4>
-                        <p className="text-[11px] text-slate-500 font-medium">{session.time}</p>
-                        {!session.isBreak && (
-                          <p className="text-[10px] text-slate-400 mt-1 truncate">
-                            {session.teacher} • {session.room}
-                          </p>
-                        )}
+                {isEditing ? (
+                  <IconButton size="xs" onClick={() => setEditingDay(null)} className="bg-white text-blue-600 hover:bg-blue-50">
+                    <Check size={14} />
+                  </IconButton>
+                ) : (
+                  <IconButton size="xs" onClick={() => setEditingDay(col.day)} className={isToday ? "text-white/70 hover:text-white" : "text-slate-300"}>
+                    <Edit3 size={14} />
+                  </IconButton>
+                )}
+              </div>
+
+              {/* Sessions Container */}
+              <div className={`space-y-3 min-h-[500px] p-2 rounded-2xl transition-colors ${isEditing ? 'bg-blue-50/50 ring-2 ring-blue-100 ring-dashed' : ''}`}>
+                {col.sessions.map((session) => (
+                  <Card key={session.id} className={`p-4 border-l-4 relative group transition-all ${
+                    session.isBreak ? 'border-amber-400' : 'border-blue-500'
+                  }`}>
+                    {isEditing ? (
+                      <div className="space-y-3 animate-in zoom-in-95">
+                        <div className="flex justify-between">
+                            <TextInput 
+                                size="sm" 
+                                placeholder="Time (08:00 - 08:45)" 
+                                value={session.time} 
+                                onChange={(e) => updateSession(col.day, session.id, 'time', e.target.value)}
+                            />
+                            <IconButton variant="ghost" size="xs" onClick={() => deleteSession(col.day, session.id)} className="text-rose-400 hover:text-rose-600">
+                                <Trash2 size={14} />
+                            </IconButton>
+                        </div>
+                        <TextInput 
+                            placeholder="Subject Name" 
+                            value={session.subject} 
+                            onChange={(e) => updateSession(col.day, session.id, 'subject', e.target.value)}
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                            <TextInput 
+                                placeholder="Room" 
+                                value={session.room} 
+                                onChange={(e) => updateSession(col.day, session.id, 'room', e.target.value)}
+                            />
+                             <button 
+                                onClick={() => updateSession(col.day, session.id, 'isBreak', !session.isBreak)}
+                                className={`text-[10px] font-bold rounded-lg border uppercase ${session.isBreak ? 'bg-amber-100 border-amber-200 text-amber-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`}
+                             >
+                                {session.isBreak ? 'Break' : 'Period'}
+                             </button>
+                        </div>
                       </div>
-                      <button 
-                        onClick={() => handleDeleteSession(column.day, session.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 text-red-500 rounded transition-all"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-blue-500 mb-1">
+                          <Clock size={12} /> {session.time}
+                        </div>
+                        <h4 className="font-bold text-slate-800 text-sm mb-2">{session.subject || "Untitled Session"}</h4>
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase">
+                          <span>{session.room ? `Rm ${session.room}` : 'No Room'}</span>
+                          <span className="truncate max-w-[60px]">{session.teacher || 'Staff'}</span>
+                        </div>
+                      </>
+                    )}
+                  </Card>
+                ))}
+
+                {/* Day Controls */}
+                {isEditing ? (
+                  <div className="space-y-2 pt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full bg-white border-blue-200 text-blue-600 border-dashed hover:bg-blue-50"
+                      onClick={() => handleAddRow(col.day)}
+                    >
+                      <Plus size={14} className="mr-1" /> Add Session
+                    </Button>
+                    <button 
+                        onClick={() => clearDay(col.day)}
+                        className="w-full py-2 text-[10px] font-bold text-rose-400 uppercase tracking-tighter hover:text-rose-600 transition-colors"
+                    >
+                        Clear Entire Day
+                    </button>
                   </div>
-                ))
-              )}
+                ) : col.sessions.length === 0 && (
+                  <div className="h-40 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-300">
+                    <Calendar size={20} className="mb-2 opacity-20" />
+                    <button 
+                        onClick={() => setEditingDay(col.day)}
+                        className="text-[10px] font-bold uppercase hover:text-blue-500 transition-colors"
+                    >
+                        + Setup {col.day}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-
-      {/* Edit Modal */}
-      {showEditor && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-xl font-bold text-slate-800">Add Session</h3>
-              <IconButton onClick={() => setShowEditor(false)}>
-                <X className="w-5 h-5" />
-              </IconButton>
-            </div>
-
-            <form onSubmit={handleAddSession} className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Day</label>
-                  <Select value={form.day} onChange={(e) => setForm({ ...form, day: e.target.value })}>
-                    {dayOptions.map(d => <option key={d} value={d}>{d}</option>)}
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase">Time Slot</label>
-                  <TextInput
-                    value={form.time}
-                    onChange={(e) => setForm({ ...form, time: e.target.value })}
-                    placeholder="e.g. 09:00 - 10:00"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase">Subject / Activity Name</label>
-                <TextInput
-                  value={form.subject}
-                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                  placeholder="Mathematics"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 py-2">
-                <input 
-                  type="checkbox" 
-                  id="isBreak" 
-                  checked={form.isBreak}
-                  onChange={(e) => setForm({...form, isBreak: e.target.checked})}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-                />
-                <label htmlFor="isBreak" className="text-sm font-medium text-slate-700">This is a break/recess period</label>
-              </div>
-
-              {!form.isBreak && (
-                <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase">Teacher</label>
-                    <TextInput
-                      value={form.teacher}
-                      onChange={(e) => setForm({ ...form, teacher: e.target.value })}
-                      placeholder="Ms. Davis"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase">Room</label>
-                    <TextInput
-                      value={form.room}
-                      onChange={(e) => setForm({ ...form, room: e.target.value })}
-                      placeholder="Lab 2"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button variant="secondary" type="button" onClick={() => setShowEditor(false)}>Cancel</Button>
-                <Button variant="primary" type="submit">Save Session</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

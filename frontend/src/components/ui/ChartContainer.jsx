@@ -1,16 +1,12 @@
-/**
- * ChartContainer.jsx - Wrapper for charts (Recharts) with title and responsive height.
- * Clean card styling, fixed height viewport.
- * Usage: <ChartContainer title="Weekly Attendance"><AreaChart data={data}>...</AreaChart></ChartContainer>
- */
-
-import React from 'react';
-
-const ChartContainer = ({ title, children }) => (
-  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-    <h2 className="text-lg font-bold text-slate-800 mb-6">{title}</h2>
-    <div className="h-64 w-full">{children}</div>
+// src/components/ui/ChartContainer.jsx
+export const ChartContainer = ({ title, children, extra }) => (
+  <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[400px]">
+    <div className="flex items-center justify-between mb-6">
+      <h3 className="font-bold text-slate-800">{title}</h3>
+      {extra}
+    </div>
+    <div className="flex-1 min-h-0 w-full">
+      {children}
+    </div>
   </div>
 );
-
-export { ChartContainer };
