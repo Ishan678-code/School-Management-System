@@ -1,7 +1,7 @@
 import React from 'react';
 import { MoreHorizontal, Users, BookOpen, Plus } from 'lucide-react';
 // Importing your reusable components
-import { Button, Card, Avatar } from '../ui';
+import { Button, Card } from '../ui';
 
 const CLASS_DATA = [
   { id: 1, name: 'Class 10A', room: '101', teacher: 'Dr. Sarah Johnson', initials: 'DSJ', students: 35, subjects: ['Mathematics', 'Physics', 'Chemistry', 'English'], color: 'border-t-blue-500' },
@@ -51,11 +51,9 @@ const AdminClassData = () => {
 
             {/* Teacher Section using Reusable Avatar Logic */}
             <div className="flex items-center gap-3 my-6">
-              <Avatar 
-                initials={cls.initials} 
-                variant="blue" 
-                className="w-10 h-10 text-xs" 
-              />
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-[10px] border border-blue-100">
+                {cls.initials}
+              </div>
               <div>
                 <p className="text-sm font-bold text-slate-700 leading-tight">{cls.teacher}</p>
                 <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Class Teacher</p>

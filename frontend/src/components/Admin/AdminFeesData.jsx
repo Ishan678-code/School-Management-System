@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, IndianRupee, Download, Eye } from 'lucide-react';
-import { StatCard, DataTable, StatusBadge, Card, TextInput, Select, Button } from '../ui';
+import { StatCard, DataTable, StatusBadge, Card, Input, Select, Button } from '../ui';
 
 const AdminFeesData = () => {
   const [query, setQuery] = useState('');
@@ -56,7 +56,7 @@ const AdminFeesData = () => {
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <TextInput placeholder="Search name or roll..." className="pl-10" value={query} onChange={(e)=>setQuery(e.target.value)} />
+            <Input placeholder="Search name or roll..." className="pl-10" value={query} onChange={(e)=>setQuery(e.target.value)} />
           </div>
           <Select value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)} options={['All', 'Paid', 'Partial', 'Unpaid']} />
           <Button variant="outline"><Download size={16} className="mr-2"/> Export</Button>

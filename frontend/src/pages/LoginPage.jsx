@@ -8,8 +8,7 @@ import { MdMailOutline } from "react-icons/md";
         import { useNavigate } from "react-router";
         import gsap from "gsap";
         import { Button } from '../components/ui/Button';
-        import { TextInput } from '../components/ui/TextInput';
-
+import { Input } from '../components/ui/Input';
 export default function LoginPage() {
   const [email, setEmail] = useState("admin@school.edu");
   const [password, setPassword] = useState("");
@@ -147,7 +146,7 @@ export default function LoginPage() {
             {/* Email */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Email</label>
-<TextInput
+<Input
                 label="Email"
                 icon={<MdMailOutline className="w-4 h-4" />}
                 value={email}

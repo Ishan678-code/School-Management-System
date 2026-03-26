@@ -1,7 +1,7 @@
 // AdminSettingsData.jsx - Admin page for managing school settings
 import React from "react";
 import { Save, School, Calendar, ShieldCheck, Bell, Edit2, CheckCircle } from "lucide-react";
-import { Button, TextInput, Select, Card, IconButton, StatusBadge } from '../ui';
+import { Button, Input, Select, Card, StatusBadge } from '../ui';
 import useSettingsForm from "../../hooks/useSettingsForm";
 
 const SchoolForm = () => (
@@ -9,11 +9,11 @@ const SchoolForm = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-2">
         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">School Name</label>
-        <TextInput defaultValue="EduManage International School" />
+        <Input defaultValue="EduManage International School" />
       </div>
       <div className="space-y-2">
         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">School Code</label>
-        <TextInput defaultValue="EMIS-2024" />
+        <Input defaultValue="EMIS-2024" />
       </div>
     </div>
 
@@ -29,15 +29,15 @@ const SchoolForm = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="space-y-2">
         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Phone</label>
-        <TextInput defaultValue="+977 12345678" />
+        <Input defaultValue="+977 12345678" />
       </div>
       <div className="space-y-2">
         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Admin Email</label>
-        <TextInput type="email" defaultValue="info@edumanage.com" />
+        <Input type="email" defaultValue="info@edumanage.com" />
       </div>
       <div className="space-y-2">
         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Official Website</label>
-        <TextInput type="url" defaultValue="https://www.edumanage.com" />
+        <Input type="url" defaultValue="https://www.edumanage.com" />
       </div>
     </div>
   </div>
@@ -59,11 +59,11 @@ const AcademicForm = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
       <div className="space-y-2">
         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Year Start Date</label>
-        <TextInput type="date" />
+        <Input type="date" />
       </div>
       <div className="space-y-2">
         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Year End Date</label>
-        <TextInput type="date" />
+        <Input type="date" />
       </div>
     </div>
   </div>
@@ -88,9 +88,9 @@ const RolesForm = () => {
               </div>
               <p className="text-xs text-slate-400 mt-1">{role.permissions.length} Global Permissions</p>
             </div>
-            <IconButton variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity p-2">
               <Edit2 className="w-4 h-4 text-slate-400" />
-            </IconButton>
+            </Button>
           </div>
           <div className="flex flex-wrap gap-2">
             {role.permissions.map((perm) => (

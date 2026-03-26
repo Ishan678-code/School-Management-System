@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, MoreHorizontal, Plus, Mail, Phone, BookOpen } from 'lucide-react';
 // Importing your unified UI library components
-import { TextInput, Button, Card, IconButton, StatusBadge, Avatar } from '../ui';
+import { Input, Button, Card, StatusBadge } from '../ui';
 
 const TEACHERS_DATA = [
   { id: 1, name: 'Dr. Sarah Johnson', initials: 'DSJ', status: 'Active', subject: 'Mathematics', email: 'sarah.johnson@school.edu', phone: '+1 234 567 8901', classes: ['10A', '10B', '9A'], variant: 'success' },
@@ -29,7 +29,7 @@ const AdminTeacherData = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <TextInput 
+          <Input 
             placeholder="Search by name, subject, or email..." 
             className="pl-10"
             value={query}
@@ -49,12 +49,10 @@ const AdminTeacherData = () => {
           <Card key={teacher.id} className="p-6 border-t-4 border-t-transparent hover:border-t-blue-500 hover:shadow-xl transition-all group">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                {/* Reusable Avatar with Group Hover effect */}
-                <Avatar 
-                  initials={teacher.initials} 
-                  variant="blue" 
-                  className="w-14 h-14 text-sm group-hover:scale-105 transition-transform" 
-                />
+                {/* Standardized Initials Circle */}
+                <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm group-hover:scale-105 transition-transform shadow-sm border-2 border-white">
+                  {teacher.initials}
+                </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-lg leading-tight group-hover:text-blue-600 transition-colors">
                     {teacher.name}
@@ -64,9 +62,9 @@ const AdminTeacherData = () => {
                   </div>
                 </div>
               </div>
-              <IconButton variant="ghost" className="text-slate-300 hover:text-slate-600">
+              <Button variant="ghost" size="sm" className="text-slate-300 hover:text-slate-600 p-2">
                 <MoreHorizontal size={20} />
-              </IconButton>
+              </Button>
             </div>
 
             {/* Contact Details with Stat-Row Styling */}

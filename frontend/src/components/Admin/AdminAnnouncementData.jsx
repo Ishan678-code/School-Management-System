@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Plus, Pin, Calendar, User as UserIcon } from 'lucide-react';
-import { Card, Button, TextInput } from '../ui';
+import { Card, Button, Input } from '../ui';
 
 const AdminAnnouncementData = () => {
   const [query, setQuery] = useState('');
@@ -15,7 +15,7 @@ const AdminAnnouncementData = () => {
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <TextInput placeholder="Search announcements..." className="pl-10" value={query} onChange={(e)=>setQuery(e.target.value)} />
+          <Input placeholder="Search announcements..." className="pl-10" value={query} onChange={(e)=>setQuery(e.target.value)} />
         </div>
         <Button className="bg-blue-600"><Plus size={18} className="mr-2"/> Post Announcement</Button>
       </div>

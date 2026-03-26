@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   ChevronDown, Check, Plus, Trash2, Printer, 
   Calendar, Clock, Coffee, MapPin, Edit3, Save, X 
 } from 'lucide-react';
-import { Button, Select, TextInput, Card, IconButton, Avatar } from '../ui'; 
+import { Button, Select, Input, Card, StatusBadge } from '../ui'; 
 
 const AdminTimetableData = () => {
   console.log("TIMETABLE COMPONENT IS RENDERING!");
@@ -25,11 +25,14 @@ const AdminTimetableData = () => {
     { day: "Friday", sessions: [] },
   ]);
 
+  // Simple incremental id generator to avoid impure calls during render
+  const nextId = useRef(2);
+
   // --- Handlers ---
 
   const handleAddRow = (dayName) => {
     const newSession = {
-      id: Date.now(),
+      id: nextId.current++,
       subject: "",
       teacher: "",
       time: "00:00 - 00:00",
@@ -78,10 +81,9 @@ const AdminTimetableData = () => {
               className="min-w-[180px] justify-between"
             >
               <span className="font-bold text-slate-700">{selectedClass}</span>
-              <ChevronDown size={16} />
             </Button>
             {isDropdownOpen && (
-              <Card className="absolute top-full left-0 mt-2 w-full z-[100] p-1 shadow-xl">
+              <div className="absolute top-full left-0 mt-2 w-full z-[100] p-1 bg-white border border-slate-100 rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-200">
                 {classes.map(cls => (
                   <button 
                     key={cls} 
@@ -91,13 +93,13 @@ const AdminTimetableData = () => {
                     {cls}
                   </button>
                 ))}
-              </Card>
+              </div>
             )}
           </div>
           <StatusBadge variant="success">Academic Year 2026</StatusBadge>
         </div>
         
-        <Button variant="outline" onClick={() => window.print()}>
+        <Button variant="primary" onClick={() => window.print()} className="bg-blue-600">
           <Printer size={16} className="mr-2" /> Export PDF
         </Button>
       </div>
@@ -120,42 +122,42 @@ const AdminTimetableData = () => {
                   </h3>
                 </div>
                 {isEditing ? (
-                  <IconButton size="xs" onClick={() => setEditingDay(null)} className="bg-white text-blue-600 hover:bg-blue-50">
-                    <Check size={14} />
-                  </IconButton>
+                  <Button size="sm" onClick={() => setEditingDay(null)} className="bg-white text-blue-600 h-8 px-2 hover:bg-blue-50">
+                    <Save size={14} className="mr-1" /> Done
+                  </Button>
                 ) : (
-                  <IconButton size="xs" onClick={() => setEditingDay(col.day)} className={isToday ? "text-white/70 hover:text-white" : "text-slate-300"}>
+                  <Button variant="ghost" size="sm" onClick={() => setEditingDay(col.day)} className={`p-1 h-auto ${isToday ? "text-white/70 hover:text-white" : "text-slate-300"}`}>
                     <Edit3 size={14} />
-                  </IconButton>
+                  </Button>
                 )}
               </div>
 
               {/* Sessions Container */}
               <div className={`space-y-3 min-h-[500px] p-2 rounded-2xl transition-colors ${isEditing ? 'bg-blue-50/50 ring-2 ring-blue-100 ring-dashed' : ''}`}>
                 {col.sessions.map((session) => (
-                  <Card key={session.id} className={`p-4 border-l-4 relative group transition-all ${
+                  <Card key={session.id} noPadding className={`p-4 border-l-4 relative group transition-all hover:shadow-md ${
                     session.isBreak ? 'border-amber-400' : 'border-blue-500'
                   }`}>
                     {isEditing ? (
                       <div className="space-y-3 animate-in zoom-in-95">
                         <div className="flex justify-between">
-                            <TextInput 
+                            <Input 
                                 size="sm" 
                                 placeholder="Time (08:00 - 08:45)" 
                                 value={session.time} 
                                 onChange={(e) => updateSession(col.day, session.id, 'time', e.target.value)}
                             />
-                            <IconButton variant="ghost" size="xs" onClick={() => deleteSession(col.day, session.id)} className="text-rose-400 hover:text-rose-600">
+                            <Button variant="ghost" size="sm" onClick={() => deleteSession(col.day, session.id)} className="text-rose-400 hover:text-rose-600 p-1 h-auto">
                                 <Trash2 size={14} />
-                            </IconButton>
+                            </Button>
                         </div>
-                        <TextInput 
+                        <Input 
                             placeholder="Subject Name" 
                             value={session.subject} 
                             onChange={(e) => updateSession(col.day, session.id, 'subject', e.target.value)}
                         />
                         <div className="grid grid-cols-2 gap-2">
-                            <TextInput 
+                            <Input 
                                 placeholder="Room" 
                                 value={session.room} 
                                 onChange={(e) => updateSession(col.day, session.id, 'room', e.target.value)}

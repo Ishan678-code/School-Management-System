@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Search, Plus, Calendar, Clock, MapPin, Users } from 'lucide-react';
-import { Button, Card, TextInput, Select, StatusBadge } from '../ui';
+import { Button, Card, Input, Select, StatusBadge } from '../ui';
 
 const EVENTS_DATA = [
   {
@@ -81,7 +81,7 @@ const AdminEventData = () => {
         <div className="flex items-center gap-4 flex-1">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <TextInput
+            <Input
               placeholder="Search events..."
               className="pl-10"
               value={query}
